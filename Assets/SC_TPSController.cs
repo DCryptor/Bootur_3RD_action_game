@@ -11,7 +11,7 @@ public class SC_TPSController : MonoBehaviour
     public Transform playerCameraParent;
     public float lookSpeed = 2.0f;
     public float lookXLimit = 60.0f;
-
+    AudioSource audioSource;
     CharacterController characterController;
     Animator animator;
     Vector3 moveDirection = Vector3.zero;
@@ -29,8 +29,13 @@ public class SC_TPSController : MonoBehaviour
     public float roll_cooldown = 1f;
 
     public GameObject choroon;
+    public AudioClip[] heal_sounds;
+    public AudioClip[] detail_sounds;
+    private int combo_attack;
+    private float combo_default_time;
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
         rotation.y = transform.eulerAngles.y;
@@ -76,6 +81,8 @@ public class SC_TPSController : MonoBehaviour
 
             if (Input.GetKey(KeyCode.E) && cooldown_timer == 0.0f)
             {
+                audioSource.PlayOneShot(detail_sounds[0]);
+                audioSource.PlayOneShot(heal_sounds[Random.Range(0, heal_sounds.Length)]);
                 cooldown_timer = 2f;
                 animator.SetTrigger("drink");
                 choroon.SetActive(true);
@@ -88,6 +95,30 @@ public class SC_TPSController : MonoBehaviour
             }
 
 
+            if (Input.GetButton("Fire1") && cooldown_timer == 0.0f)
+            {
+                if (combo_attack == 0)
+                {
+                    combo_attack = 1;
+                    cooldown_timer = 1.0f;
+                    combo_default_time = 1.5f;
+                    animator.SetTrigger("attack_1");
+                }
+                else if (combo_attack == 1)
+                {
+                    combo_attack = 2;
+                    cooldown_timer = 1.3f;
+                    combo_default_time = 1.6f;
+                    animator.SetTrigger("attack_2");
+                }
+                else if (combo_attack == 2)
+                {
+                    combo_attack = 0;
+                    cooldown_timer = 1.5f;
+                    combo_default_time = 1.8f;
+                    animator.SetTrigger("attack_3");
+                }
+            }
         }
         animator.SetBool("isgrounded", characterController.isGrounded);
         // Apply gravity. Gravity is multiplied by deltaTime twice (once here, and once below
@@ -164,6 +195,16 @@ public class SC_TPSController : MonoBehaviour
         if (cooldown_timer > 0.0f)
         {
             cooldown_timer = cooldown_timer - Time.deltaTime;
+        }
+
+        if (combo_default_time < 0.0f)
+        {
+            combo_default_time = 0.0f;
+            combo_attack = 0;
+        }
+        if (combo_default_time > 0.0f)
+        {
+            combo_default_time = combo_default_time - Time.deltaTime;
         }
     }
 }
