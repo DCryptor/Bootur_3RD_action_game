@@ -232,7 +232,7 @@ MonoBehaviour:
   right_run: 0
   left_run: 0
   cooldown_timer: 0
-  roll_cooldown: 1
+  roll_cooldown: 1.2
   choroon: {fileID: 529886519}
 --- !u!143 &212362960
 CharacterController:
